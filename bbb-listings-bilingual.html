@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Beasts & Monsters — Listings EN/ES</title>
+<style>
+body{margin:0;padding:8px;font-family:sans-serif;background:#1a1a1a;color:#ddd}
+.lang-bar{display:flex;gap:6px;padding:4px 0 10px;align-items:center;}
+.lang-btn{background:#222;color:#888;border:1px solid #444;padding:4px 16px;border-radius:5px;cursor:pointer;font-size:12px;letter-spacing:.05em;}
+.lang-btn.active{background:#1a3a1a;color:#9f9;border-color:#7f7;}
+.section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:14px 0 6px;padding:5px 10px;border-radius:5px}
+.sl-pure{background:#1a3a5a;color:#7cf}.sl-corrupt{background:#3a1a1a;color:#f77}
+.sl-boss{background:#5a2a00;color:#fa0}.sl-npc{background:#1a3a1a;color:#7f7}.sl-script{background:#3a1a5a;color:#c9f}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+.tab{padding:4px 9px;border-radius:5px;border:1px solid #444;font-size:11px;cursor:pointer;background:#2a2a2a;color:#aaa}
+.tab.pure.active{background:#1a3a5a;color:#7cf;border-color:#7cf}
+.tab.corrupt.active{background:#3a1a1a;color:#f77;border-color:#f77}
+.tab.boss.active{background:#5a2a00;color:#fa0;border-color:#fa0}
+.tab.npc.active{background:#1a3a1a;color:#7f7;border-color:#7f7}
+.tab.script.active{background:#3a1a5a;color:#c9f;border-color:#c9f}
+.panel{display:none}.panel.active{display:block}
+.f{background:#222;border-radius:6px;padding:10px;margin-bottom:8px}
+.fl{font-size:10px;color:#888;text-transform:uppercase;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center}
+.f pre{margin:0;font-size:12px;white-space:pre-wrap;color:#ddd;line-height:1.5}
+.cb{font-size:11px;padding:2px 8px;cursor:pointer;border-radius:4px;background:#333;color:#aaa;border:1px solid #555}
+.ok{color:#7f7;font-size:11px;margin-left:4px;opacity:0;transition:opacity .3s}.ok.show{opacity:1}
+.info{background:#222;border-radius:6px;padding:10px;font-size:12px;color:#aaa;line-height:1.8}
+</style>
+</head>
+<body>
+
+<div class="lang-bar">
+  <button id="btn-en" class="lang-btn" onclick="setLang('en')">🇬🇧 EN</button>
+  <button id="btn-es" class="lang-btn" onclick="setLang('es')">🇪🇸 ES</button>
+</div>
+
+<div class="section-label sl-pure" id="lbl-pure"></div><div class="tabs" id="TP"></div>
+<div class="section-label sl-corrupt" id="lbl-corrupt"></div><div class="tabs" id="TC"></div>
+<div class="section-label sl-boss" id="lbl-boss"></div><div class="tabs" id="TJ"></div>
+<div class="section-label sl-npc" id="lbl-npc"></div><div class="tabs" id="TN"></div>
+<div class="section-label sl-script">🛠️ Script</div><div class="tabs" id="TS"></div>
+<div id="P"></div>
+
+<script>
+const DISCORD='https://discord.gg/3tavqTxKrX';
+const YOUTUBE='https://www.youtube.com/channel/UC3Ko8g884iyZim4ODR-Wpbg';
+const TWITTER='https://x.com/dragonprimordia';
+let curLang='en', activeId='lion';
+
+const LABELS={
+  en:{pure:'💠👑 Pure Beasts',corrupt:'💠🩸 Corrupted Beasts',boss:'♦️👑 Bosses',npc:'♦️👹 Hostile NPCs'},
+  es:{pure:'💠👑 Bestias Puras',corrupt:'💠🩸 Bestias Corruptas',boss:'♦️👑 Jefes',npc:'♦️👹 NPCs Hostiles'}
+};
+
+function FOOTER(l){
+  return l==='es'
+    ?`Parte de BESTIAS Y MONSTRUOS — más de 20 NPCs únicos.\nDel juego: 🔥 BESTIAS Y MONSTRUOS 🔥\nDiscord: ${DISCORD}\nYouTube: ${YOUTUBE}\nX (Twitter): ${TWITTER}`
+    :`Part of BEASTS & MONSTERS — 20+ unique NPCs.\nFrom the game: 🔥 BEASTS & MONSTERS 🔥\nDiscord: ${DISCORD}\nYouTube: ${YOUTUBE}\nX (Twitter): ${TWITTER}`;
+}
+
+function S(n){return `「 ✦ ${n} ✦ 」`;}
+
+function incl(l,n){
+  return l==='es'
+    ?`• Archivo de modelo ${n} .rbxm\n• Listo para insertar en Roblox Studio\n• Partes de malla optimizadas organizadas en carpetas por extremidad`
+    :`• ${n} .rbxm model file\n• Ready to insert via Roblox Studio\n• Optimized mesh parts organized by limb folders`;
+}
+
+const STDBUILD={
+  en:'Each part of this model was built and arranged in clearly labeled folders, making it fully compatible with automated rigging tools. The model is unobfuscated and fully editable, so you can retexture, resize, or rebuild any part without restrictions.',
+  es:'Cada parte de este modelo fue construida y organizada en carpetas claramente etiquetadas, lo que lo hace totalmente compatible con herramientas de rigging automatizadas. El modelo no está ofuscado y es completamente editable: puedes retexturizar, redimensionar o reconstruir cualquier parte sin restricciones.'
+};
+
+const STDPFOR={
+  en:'• RPG and survival games\n• Beast tamers / monster collectors\n• Boss encounter systems\n• Open world creature spawns',
+  es:'• Juegos de RPG y supervivencia\n• Domadores de bestias / coleccionadores de monstruos\n• Sistemas de encuentro con jefes\n• Aparición de criaturas en mundo abierto'
+};
+
+function makeDesc(l,em,title,type,intro,detail,inc,feat,build,pfor){
+  return l==='es'
+?`${em} ${title} — ${type}
+
+${intro}
+
+${detail}
+
+Este modelo forma parte de la colección BESTIAS Y MONSTRUOS — un conjunto de NPCs únicos hechos a mano, construidos específicamente para juegos de Roblox. Cada criatura de esta colección está diseñada con su propia silueta, paleta de colores e identidad visual para destacar en tu mundo de juego.
+
+${S('QUÉ INCLUYE')}
+${inc}
+
+${S('CARACTERÍSTICAS')}
+${feat}
+• Estilo artístico low-poly para Roblox, optimizado para el rendimiento
+• Construcción basada en MeshPart con organización limpia de partes
+• Compatible con la mayoría de los frameworks y sistemas de rig de Roblox
+• Funciona perfectamente con el script Monster Parts Connector Motor6D
+• Código abierto — modifica el modelo libremente para tu propio proyecto
+
+${S('CONSTRUCCIÓN Y CALIDAD')}
+${build}
+
+${S('PERFECTO PARA')}
+${pfor}
+
+${S('MÁS DE ESTA COLECCIÓN')}
+${FOOTER('es')}`
+:`${em} ${title} — ${type}
+
+${intro}
+
+${detail}
+
+This model is part of the BEASTS & MONSTERS collection — a hand-crafted set of unique NPCs built specifically for Roblox games. Every creature in this collection is designed with its own distinct silhouette, color palette, and visual identity so it stands out in your game world.
+
+${S("WHAT'S INCLUDED")}
+${inc}
+
+${S('FEATURES')}
+${feat}
+• Low-poly stylized Roblox art style, optimized for performance
+• Fully MeshPart-based construction with clean part organization
+• Compatible with most Roblox game frameworks and rig systems
+• Works seamlessly with the Monster Parts Connector Motor6D script
+• Open source — modify the model freely for your own project
+
+${S('CONSTRUCTION & QUALITY')}
+${build}
+
+${S('PERFECT FOR')}
+${pfor}
+
+${S('MORE FROM THIS COLLECTION')}
+${FOOTER('en')}`;
+}
+
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const PURE=[
+  {id:'lion',em:'💠🦁',model:'León_Mítico',pfor:STDPFOR,
+   en:{title:'Mythical Lion Beast Roblox NPC',sum:'Mythical lion beast NPC for Roblox, part of the Beasts and Monsters collection.',type:'Pure Beast NPC',
+       intro:'A fierce mythical lion beast ready to be dropped into your Roblox game as an enemy, boss, or battle companion.',
+       detail:'This beast embodies raw power and pride, built with a bold silhouette and sharp angular detailing that reads clearly even from a distance. Its commanding presence makes it an excellent centerpiece for any RPG roster.',
+       feat:'• Fierce predator mythical aesthetic with a commanding stance'},
+   es:{title:'Bestia León Mítico NPC de Roblox',sum:'NPC de bestia mítica de León para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Bestia Pura',
+       intro:'Una feroz bestia mítica de León lista para insertarse en tu juego de Roblox como enemigo, jefe o compañero de batalla.',
+       detail:'Esta bestia encarna el poder bruto y el orgullo, construida con una silueta audaz y detalles angulares nítidos que se distinguen claramente incluso desde lejos. Su presencia imponente la convierte en un excelente elemento central para cualquier lista de RPG.',
+       feat:'• Estética mítica de depredador feroz con una postura imponente'}},
+
+  {id:'dragon',em:'💠🐲',model:'Dragón_Mítico',pfor:STDPFOR,
+   en:{title:'Mythical Dragon Beast Roblox NPC',sum:'Mythical dragon beast NPC for Roblox, part of the Beasts and Monsters collection.',type:'Pure Beast NPC',
+       intro:'A fearsome red mythical dragon beast with glowing eyes and wings, ready to dominate your Roblox game.',
+       detail:'Designed as a flagship creature for boss encounters, this dragon features articulated wing folders, a horned head, and a long tail section — all separated so animators can pose and rig each section independently.',
+       feat:'• Glowing red eyes and detailed wing membrane design'},
+   es:{title:'Bestia Dragón Mítico NPC de Roblox',sum:'NPC de bestia mítica de Dragón para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Bestia Pura',
+       intro:'Una temible bestia mítica de Dragón roja con ojos brillantes y alas, lista para dominar tu juego de Roblox.',
+       detail:'Diseñada como criatura principal para encuentros de jefes, este Dragón cuenta con carpetas de alas articuladas, una cabeza con cuernos y una larga sección de cola — todo separado para que los animadores puedan posar y hacer rig de cada sección de forma independiente.',
+       feat:'• Ojos rojos brillantes y diseño detallado de membrana alar'}},
+
+  {id:'human',em:'💠👤',model:'Bestia_Humano',pfor:STDPFOR,
+   en:{title:'Mythical Human Beast Roblox NPC',sum:'Mythical human beast NPC for Roblox, part of the Beasts and Monsters collection.',type:'Pure Beast NPC',
+       intro:'A dark humanoid beast with glowing details, ready to be dropped into your Roblox game as an enemy, boss, or playable creature.',
+       detail:'Unlike the other beasts, this model follows a bipedal humanoid structure, making it ideal for melee-focused enemy types or as a base for custom character variants in your game.',
+       feat:'• Dark humanoid design with glowing yellow accent lights'},
+   es:{title:'Bestia Humano Mítico NPC de Roblox',sum:'NPC de bestia mítica Humano para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Bestia Pura',
+       intro:'Una oscura bestia humanoide con detalles brillantes, lista para insertarse en tu juego de Roblox como enemigo, jefe o criatura jugable.',
+       detail:'A diferencia de las otras bestias, este modelo sigue una estructura humanoide bípeda, lo que lo hace ideal para tipos de enemigos enfocados en el combate cuerpo a cuerpo o como base para variantes de personajes personalizados en tu juego.',
+       feat:'• Diseño humanoide oscuro con luces de acento amarillo brillante'}},
+
+  {id:'snake',em:'💠🐍',model:'Serpiente_Mítica',pfor:STDPFOR,
+   en:{title:'Mythical Snake Beast Roblox NPC',sum:'Mythical snake beast NPC for Roblox, part of the Beasts and Monsters collection.',type:'Pure Beast NPC',
+       intro:'A venomous mythical snake beast with glowing scales and a deadly presence.',
+       detail:'Built with an elongated segmented body, this serpent beast is well suited for slithering movement animations and ambush-style enemy encounters in dungeons or jungle biomes.',
+       feat:'• Venomous serpent aesthetic with glowing scale detailing'},
+   es:{title:'Bestia Serpiente Mítica NPC de Roblox',sum:'NPC de bestia mítica de Serpiente para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Bestia Pura',
+       intro:'Una venenosa bestia mítica de Serpiente con escamas brillantes y una presencia letal.',
+       detail:'Construida con un cuerpo segmentado alargado, esta bestia serpiente es perfecta para animaciones de movimiento serpenteante y encuentros enemigos tipo emboscada en mazmorras o biomas de jungla.',
+       feat:'• Estética de serpiente venenosa con detalles de escamas brillantes'}},
+
+  {id:'turtle',em:'💠🐢',model:'Tortuga_Mítica',pfor:STDPFOR,
+   en:{title:'Mythical Turtle Beast Roblox NPC',sum:'Mythical turtle beast NPC for Roblox, part of the Beasts and Monsters collection.',type:'Pure Beast NPC',
+       intro:'A massive armored mythical turtle beast with an impenetrable shell.',
+       detail:'This tank-archetype creature was designed with a thick reinforced shell and stout limbs, making it perfect for slow, defensive boss mechanics or guardian-type encounters that block player progress.',
+       feat:'• Heavy armored shell with reinforced tank-like plating'},
+   es:{title:'Bestia Tortuga Mítica NPC de Roblox',sum:'NPC de bestia mítica de Tortuga para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Bestia Pura',
+       intro:'Una masiva bestia mítica de Tortuga acorazada con un caparazón impenetrable.',
+       detail:'Esta criatura de arquetipo tanque fue diseñada con un grueso caparazón reforzado y extremidades robustas, perfecta para mecánicas de jefe lentas y defensivas o encuentros de tipo guardián que bloqueen el progreso del jugador.',
+       feat:'• Pesado caparazón blindado con placas reforzadas tipo tanque'}},
+
+  {id:'phoenix',em:'💠🐦',model:'Fénix_Mítico',pfor:STDPFOR,
+   en:{title:'Mythical Phoenix Beast Roblox NPC',sum:'Mythical phoenix beast NPC for Roblox, part of the Beasts and Monsters collection.',type:'Pure Beast NPC',
+       intro:'A blazing mythical phoenix beast with fiery wings and a legendary rebirth aura.',
+       detail:'Crafted with sweeping wing geometry and warm glowing flame accents, this phoenix is built to feel legendary — ideal as a rare reward creature or a climactic final boss.',
+       feat:'• Fiery wings with glowing flame-themed lighting details'},
+   es:{title:'Bestia Fénix Mítico NPC de Roblox',sum:'NPC de bestia mítica de Fénix para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Bestia Pura',
+       intro:'Una ardiente bestia mítica de Fénix con alas de fuego y un aura de renacimiento legendario.',
+       detail:'Elaborada con geometría de alas expansivas y cálidos acentos de llama brillante, este Fénix está construido para sentirse legendario — ideal como criatura de recompensa rara o un épico jefe final.',
+       feat:'• Alas de fuego con detalles de iluminación temática de llamas brillantes'}},
+
+  {id:'fox',em:'💠🦊',model:'Zorro_Mítico',pfor:STDPFOR,
+   en:{title:'Mythical Fox Beast Roblox NPC',sum:'Mythical fox beast NPC for Roblox, part of the Beasts and Monsters collection.',type:'Pure Beast NPC',
+       intro:'A cunning mythical fox beast with glowing accents and swift movement design.',
+       detail:'Built with a sleek, agile frame, this fox beast is ideal for fast-paced chase encounters or as a nimble companion creature with quick, lightweight movement patterns.',
+       feat:'• Cunning fox aesthetic with sleek glowing accent design'},
+   es:{title:'Bestia Zorro Mítico NPC de Roblox',sum:'NPC de bestia mítica de Zorro para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Bestia Pura',
+       intro:'Una astuta bestia mítica de Zorro con acentos brillantes y diseño de movimiento veloz.',
+       detail:'Construida con un marco ágil y esbelto, esta bestia Zorro es ideal para encuentros de persecución rápida o como criatura compañera ágil con patrones de movimiento rápidos y ligeros.',
+       feat:'• Estética de zorro astuto con diseño de acento brillante esbelto'}},
+
+  {id:'lizard',em:'💠🦖',model:'Rey_Lagarto_Tirano',pfor:STDPFOR,
+   en:{title:'Mythical Tyrant Lizard King Roblox NPC',sum:'Mythical tyrant lizard king NPC for Roblox, part of the Beasts and Monsters collection.',type:'Pure Beast NPC',
+       intro:'A colossal mythical tyrant lizard king beast — the apex predator of all beasts.',
+       detail:'This is the largest and most imposing model in the Pure Beasts line, built with oversized proportions and heavy musculature to serve as an apex-tier boss for end-game encounters.',
+       feat:'• Colossal apex predator with massive dinosaur-like proportions'},
+   es:{title:'Rey Lagarto Tirano Mítico NPC de Roblox',sum:'NPC de Rey Lagarto Tirano mítico para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Bestia Pura',
+       intro:'Una colosal bestia mítica Rey Lagarto Tirano — el depredador supremo de todas las bestias.',
+       detail:'Este es el modelo más grande e imponente de la línea Bestias Puras, construido con proporciones sobredimensionadas y musculatura pesada para servir como jefe de nivel supremo en encuentros de final de juego.',
+       feat:'• Colosal depredador supremo con masivas proporciones tipo dinosaurio'}},
+
+  {id:'scorpion',em:'💠🦂',model:'Escorpión_Mítico',pfor:STDPFOR,
+   en:{title:'Mythical Scorpion Beast Roblox NPC',sum:'Mythical scorpion beast NPC for Roblox, part of the Beasts and Monsters collection.',type:'Pure Beast NPC',
+       intro:'A deadly mythical scorpion beast with a venomous stinger and armored body.',
+       detail:'Featuring a segmented exoskeleton and a raised tail stinger section, this creature is well suited for desert-themed levels and venom-based attack mechanics.',
+       feat:'• Deadly venomous stinger with fully armored exoskeleton'},
+   es:{title:'Bestia Escorpión Mítico NPC de Roblox',sum:'NPC de bestia mítica de Escorpión para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Bestia Pura',
+       intro:'Una mortífera bestia mítica de Escorpión con un aguijón venenoso y cuerpo acorazado.',
+       detail:'Con un exoesqueleto segmentado y una sección de aguijón elevado en la cola, esta criatura es perfecta para niveles de temática desértica y mecánicas de ataque basadas en veneno.',
+       feat:'• Aguijón venenoso mortal con exoesqueleto completamente acorazado'}},
+];
+
+const CORRUPT=[
+  {id:'rhino',em:'💠🦏',model:'Rinoceronte_Corrupto',pfor:STDPFOR,
+   en:{title:'Corrupted Rhino Beast Roblox NPC',sum:'Corrupted rhino beast NPC for Roblox, part of the Beasts and Monsters collection.',type:'Corrupted Beast NPC',
+       intro:'A powerful, dark-armored corrupted rhinoceros beast ready to be dropped into your Roblox game as an enemy, boss, or creature companion.',
+       detail:'Twisted by corruption, this rhino carries heavy mechanical-style armor plating with glowing energy conduits running down its legs, giving it a tank-like, almost cybernetic presence.',
+       feat:'• Dark corrupted aesthetic with glowing leg energy details'},
+   es:{title:'Bestia Rinoceronte Corrupto NPC de Roblox',sum:'NPC de bestia Rinoceronte corrupto para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Bestia Corrupta',
+       intro:'Una poderosa bestia Rinoceronte corrupto con armadura oscura, lista para insertarse en tu juego de Roblox como enemigo, jefe o compañero criatura.',
+       detail:'Retorcido por la corrupción, este rinoceronte lleva pesadas placas de armadura estilo mecánico con conductos de energía brillante recorriendo sus patas, dándole una presencia tipo tanque, casi cibernética.',
+       feat:'• Estética corrupta oscura con detalles de energía brillante en las patas'}},
+
+  {id:'spider',em:'💠🕷️',model:'Araña_Corrupta',pfor:STDPFOR,
+   en:{title:'Corrupted Spider Beast Roblox NPC',sum:'Corrupted spider beast NPC for Roblox, part of the Beasts and Monsters collection.',type:'Corrupted Beast NPC',
+       intro:'A terrifying corrupted spider beast with dark energy and multiple deadly legs.',
+       detail:'Built with eight individually articulated legs, this corrupted spider is designed for unsettling crawling animations and works exceptionally well in horror-themed dungeon encounters.',
+       feat:'• Corrupted dark spider aesthetic with multi-legged articulation'},
+   es:{title:'Bestia Araña Corrupta NPC de Roblox',sum:'NPC de bestia Araña corrupta para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Bestia Corrupta',
+       intro:'Una aterradora bestia Araña corrupta con energía oscura y múltiples patas letales.',
+       detail:'Construida con ocho patas articuladas individualmente, esta Araña corrupta está diseñada para animaciones inquietantes de arrastre y funciona excepcionalmente bien en encuentros de mazmorra de temática de terror.',
+       feat:'• Estética de Araña corrupta oscura con articulación de múltiples patas'}},
+
+  {id:'whale',em:'💠🐳',model:'Ballena_Corrupta',pfor:STDPFOR,
+   en:{title:'Corrupted Whale Beast Roblox NPC',sum:'Corrupted whale beast NPC for Roblox, part of the Beasts and Monsters collection.',type:'Corrupted Beast NPC',
+       intro:'A massive corrupted whale beast with dark power lurking from the deep.',
+       detail:'This oversized aquatic beast was built to feel genuinely massive in-game, with dark corrupted markings spreading across its body — perfect as a sea-roaming boss or ambient world threat.',
+       feat:'• Corrupted ocean beast with giant dark-marked body design'},
+   es:{title:'Bestia Ballena Corrupta NPC de Roblox',sum:'NPC de bestia Ballena corrupta para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Bestia Corrupta',
+       intro:'Una masiva bestia Ballena corrupta con poder oscuro acechando desde las profundidades.',
+       detail:'Esta bestia acuática de tamaño descomunal fue construida para sentirse genuinamente masiva en el juego, con marcas corruptas oscuras extendiéndose por su cuerpo — perfecta como jefe que ronda los mares o amenaza ambiental del mundo.',
+       feat:'• Bestia oceánica corrupta con enorme cuerpo de marcas oscuras'}},
+
+  {id:'unicorn',em:'💠🦄',model:'Unicornio_Corrupto',pfor:STDPFOR,
+   en:{title:'Corrupted Unicorn Beast Roblox NPC',sum:'Corrupted unicorn beast NPC for Roblox, part of the Beasts and Monsters collection.',type:'Corrupted Beast NPC',
+       intro:'A corrupted unicorn beast with dark energy replacing its once pure grace.',
+       detail:'Taking a classically elegant creature and twisting it with sharp corrupted geometry and dark glowing accents, this beast offers a striking contrast that fits dark fantasy storylines well.',
+       feat:'• Corrupted dark unicorn with elegant yet sinister silhouette'},
+   es:{title:'Bestia Unicornio Corrupto NPC de Roblox',sum:'NPC de bestia Unicornio corrupto para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Bestia Corrupta',
+       intro:'Una bestia Unicornio corrupto con energía oscura que reemplaza su gracia antes pura.',
+       detail:'Tomando una criatura clásicamente elegante y retorciéndola con geometría corrupta afilada y acentos oscuros brillantes, esta bestia ofrece un contraste llamativo que encaja bien en narrativas de fantasía oscura.',
+       feat:'• Unicornio corrupto oscuro con silueta elegante pero siniestra'}},
+
+  {id:'chimera',em:'💠🧪',model:'Quimera_Corrupta',pfor:STDPFOR,
+   en:{title:'Corrupted Chimera Beast Roblox NPC',sum:'Corrupted chimera beast NPC for Roblox, part of the Beasts and Monsters collection.',type:'Corrupted Beast NPC',
+       intro:'A grotesque corrupted chimera beast — a terrifying fusion of multiple creatures.',
+       detail:'Combining mismatched limb and head shapes from different animals, this chimera was specifically designed to feel unnatural and threatening, making it a standout mid-tier boss option.',
+       feat:'• Multi-creature corrupted hybrid with unique grotesque silhouette'},
+   es:{title:'Bestia Quimera Corrupta NPC de Roblox',sum:'NPC de bestia Quimera corrupta para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Bestia Corrupta',
+       intro:'Una grotesca bestia Quimera corrupta — una aterradora fusión de múltiples criaturas.',
+       detail:'Combinando formas de extremidades y cabezas desiguales de diferentes animales, esta Quimera fue diseñada específicamente para sentirse antinatural y amenazante, convirtiéndola en una destacada opción de jefe de nivel medio.',
+       feat:'• Híbrido corrupto de múltiples criaturas con silueta grotesca única'}},
+
+  {id:'wolf',em:'💠🐺',model:'Lobo_Corrupto',pfor:STDPFOR,
+   en:{title:'Corrupted Wolf Beast Roblox NPC',sum:'Corrupted wolf beast NPC for Roblox, part of the Beasts and Monsters collection.',type:'Corrupted Beast NPC',
+       intro:'A ferocious corrupted wolf beast with dark energy and predatory instincts.',
+       detail:'Built lean and aggressive, this corrupted wolf works particularly well in pack-based enemy encounters, where multiple copies can be spawned together for a coordinated threat.',
+       feat:'• Corrupted dark wolf with lean, ferocious predatory build'},
+   es:{title:'Bestia Lobo Corrupto NPC de Roblox',sum:'NPC de bestia Lobo corrupto para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Bestia Corrupta',
+       intro:'Una feroz bestia Lobo corrupto con energía oscura e instintos depredadores.',
+       detail:'Construido de forma esbelta y agresiva, este Lobo corrupto funciona particularmente bien en encuentros enemigos basados en manadas, donde se pueden generar múltiples copias juntas para una amenaza coordinada.',
+       feat:'• Lobo corrupto oscuro con construcción depredadora esbelta y feroz'}},
+];
+
+const BOSSES=[
+  {id:'crab',em:'♦️🐚',model:'Cangrejo_Ermitaño',
+   pfor:{en:'• RPG and survival games\n• Ocean and beach boss encounters\n• Dungeon boss systems\n• Open world creature spawns',
+         es:'• Juegos de RPG y supervivencia\n• Encuentros de jefe en océano y playa\n• Sistemas de jefe en mazmorras\n• Aparición de criaturas en mundo abierto'},
+   en:{title:'Hermit Crab Boss Roblox NPC',sum:'Mythical hermit crab boss NPC for Roblox, part of the Beasts and Monsters collection.',type:'Boss NPC',
+       intro:'A massive mythical hermit crab boss with a powerful armored shell and crushing claws.',
+       detail:'Built around a heavy central shell piece with two oversized claw appendages, this boss is ideal for telegraphed slam and pinch attack patterns in beach or ocean-themed boss arenas.',
+       feat:'• Armored shell boss with oversized crushing claw design'},
+   es:{title:'Jefe Cangrejo Ermitaño NPC de Roblox',sum:'NPC de jefe Cangrejo Ermitaño mítico para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Jefe',
+       intro:'Un masivo jefe de Cangrejo Ermitaño mítico con un poderoso caparazón acorazado y pinzas trituradoras.',
+       detail:'Construido alrededor de una pieza central de caparazón pesado con dos grandes apéndices de pinza, este jefe es ideal para patrones de ataques telegráficos de aplastamiento y pinzado en arenas de jefe de playa u océano.',
+       feat:'• Jefe de caparazón acorazado con diseño de pinza trituradora sobredimensionada'}},
+
+  {id:'shark',em:'♦️🦈',model:'Tiburón_de_Agua',
+   pfor:{en:'• RPG and survival games\n• Ocean and underwater environments\n• Boss encounter systems\n• Open world creature spawns',
+         es:'• Juegos de RPG y supervivencia\n• Entornos oceánicos y subacuáticos\n• Sistemas de encuentro con jefes\n• Aparición de criaturas en mundo abierto'},
+   en:{title:'Water Shark Boss Roblox NPC',sum:'Mythical water shark boss NPC for Roblox, part of the Beasts and Monsters collection.',type:'Boss NPC',
+       intro:'A fearsome mythical water shark boss that dominates the seas with speed and power.',
+       detail:'Streamlined for fast swimming animations, this shark boss features a hydrodynamic body shape and prominent fin sections, making it suited for chase-style underwater boss fights.',
+       feat:'• Apex ocean predator with hydrodynamic body and sharp fin design'},
+   es:{title:'Jefe Tiburón de Agua NPC de Roblox',sum:'NPC de jefe Tiburón de Agua mítico para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Jefe',
+       intro:'Un temible jefe Tiburón de Agua mítico que domina los mares con velocidad y poder.',
+       detail:'Optimizado para animaciones de natación rápida, este jefe Tiburón cuenta con una forma de cuerpo hidrodinámica y secciones de aleta prominentes, adecuado para combates de jefe submarinos estilo persecución.',
+       feat:'• Depredador oceánico supremo con cuerpo hidrodinámico y diseño de aleta afilada'}},
+
+  {id:'hydra',em:'♦️🐍',model:'Hidra',
+   pfor:{en:'• RPG and survival games\n• Legendary boss encounter systems\n• Swamp and dungeon environments\n• Open world creature spawns',
+         es:'• Juegos de RPG y supervivencia\n• Sistemas de encuentro con jefes legendarios\n• Entornos de pantano y mazmorras\n• Aparición de criaturas en mundo abierto'},
+   en:{title:'Mythical Hydra Boss Roblox NPC',sum:'Mythical hydra boss NPC for Roblox, part of the Beasts and Monsters collection.',type:'Boss NPC',
+       intro:'A legendary multi-headed hydra boss with regenerating power and devastating attacks.',
+       detail:'Built with multiple independently posable head sections branching from a shared body, this hydra is perfect for multi-phase boss fights where heads can be defeated individually.',
+       feat:'• Multi-headed legendary boss with branching imposing structure'},
+   es:{title:'Jefe Hidra Mítica NPC de Roblox',sum:'NPC de jefe Hidra mítica para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Jefe',
+       intro:'Un legendario jefe Hidra de múltiples cabezas con poder regenerativo y ataques devastadores.',
+       detail:'Construida con múltiples secciones de cabeza posables independientemente que se ramifican desde un cuerpo compartido, esta Hidra es perfecta para combates de jefe de múltiples fases donde las cabezas pueden ser derrotadas individualmente.',
+       feat:'• Jefe legendario de múltiples cabezas con estructura ramificada imponente'}},
+
+  {id:'basilisk',em:'♦️🐔',model:'Basilisco',
+   pfor:{en:'• RPG and survival games\n• Boss encounter systems\n• Dungeon and cave environments\n• Open world creature spawns',
+         es:'• Juegos de RPG y supervivencia\n• Sistemas de encuentro con jefes\n• Entornos de mazmorras y cuevas\n• Aparición de criaturas en mundo abierto'},
+   en:{title:'Mythical Basilisk Boss Roblox NPC',sum:'Mythical basilisk boss NPC for Roblox, part of the Beasts and Monsters collection.',type:'Boss NPC',
+       intro:'A mythical basilisk boss with petrifying gaze and deadly venom.',
+       detail:'This hybrid serpent-rooster boss combines a crested head with a long coiling body, designed to support both ranged gaze-based attacks and close-range venom strikes.',
+       feat:'• Petrifying gaze design with serpentine rooster hybrid body'},
+   es:{title:'Jefe Basilisco Mítico NPC de Roblox',sum:'NPC de jefe Basilisco mítico para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Jefe',
+       intro:'Un jefe Basilisco mítico con mirada petrificante y veneno mortal.',
+       detail:'Este jefe híbrido serpiente-gallo combina una cabeza con cresta y un largo cuerpo serpenteante, diseñado para soportar tanto ataques a distancia basados en mirada como ataques de veneno a corto alcance.',
+       feat:'• Diseño de mirada petrificante con cuerpo híbrido de gallo serpentino'}},
+
+  {id:'boar',em:'♦️🐗',model:'Jabalí_Mutante',
+   pfor:{en:'• RPG and survival games\n• Forest and jungle boss encounters\n• Charge-type boss systems\n• Open world creature spawns',
+         es:'• Juegos de RPG y supervivencia\n• Encuentros de jefe en bosque y jungla\n• Sistemas de jefe tipo carga\n• Aparición de criaturas en mundo abierto'},
+   en:{title:'Mutant Boar Boss Roblox NPC',sum:'Mutant boar boss NPC for Roblox, part of the Beasts and Monsters collection.',type:'Boss NPC',
+       intro:'A massive mutant boar boss with enhanced strength and razor-sharp tusks.',
+       detail:'Built with a low, broad stance and forward-facing tusks, this boar boss is perfectly shaped for charge-attack mechanics that telegraph clearly to players.',
+       feat:'• Mutant enhanced boar with broad powerful charge-ready stance'},
+   es:{title:'Jefe Jabalí Mutante NPC de Roblox',sum:'NPC de jefe Jabalí Mutante para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Jefe',
+       intro:'Un masivo jefe Jabalí Mutante con fuerza mejorada y colmillos afilados como navajas.',
+       detail:'Construido con una postura baja y ancha y colmillos orientados hacia adelante, este jefe Jabalí tiene la forma perfecta para mecánicas de ataque de carga que se telegrafíen claramente a los jugadores.',
+       feat:'• Jabalí mutante mejorado con postura de carga poderosa y ancha'}},
+
+  {id:'plesiosaur',em:'♦️🦕',model:'Plesiosaurio',
+   pfor:{en:'• RPG and survival games\n• Ocean and lake boss encounters\n• Prehistoric environments\n• Open world creature spawns',
+         es:'• Juegos de RPG y supervivencia\n• Encuentros de jefe en océano y lago\n• Entornos prehistóricos\n• Aparición de criaturas en mundo abierto'},
+   en:{title:'Mythical Plesiosaur Boss Roblox NPC',sum:'Mythical plesiosaur boss NPC for Roblox, part of the Beasts and Monsters collection.',type:'Boss NPC',
+       intro:'A colossal mythical plesiosaur boss rising from ancient depths with prehistoric power.',
+       detail:'Featuring an extended neck section and flippers built for swimming poses, this prehistoric giant is ideal for lake or ocean boss arenas requiring a sense of ancient scale.',
+       feat:'• Prehistoric ocean giant with extended neck and flipper design'},
+   es:{title:'Jefe Plesiosaurio Mítico NPC de Roblox',sum:'NPC de jefe Plesiosaurio mítico para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Jefe',
+       intro:'Un colosal jefe Plesiosaurio mítico surgiendo de las profundidades antiguas con poder prehistórico.',
+       detail:'Con una sección de cuello extendida y aletas construidas para poses de natación, este gigante prehistórico es ideal para arenas de jefe en lagos u océanos que requieran una sensación de escala antigua.',
+       feat:'• Gigante oceánico prehistórico con cuello extendido y diseño de aleta'}},
+
+  {id:'frozen',em:'♦️🧊',model:'Monstruo_Gélido',
+   pfor:{en:'• RPG and survival games\n• Ice and winter boss encounters\n• Freeze mechanic systems\n• Open world creature spawns',
+         es:'• Juegos de RPG y supervivencia\n• Encuentros de jefe en hielo e invierno\n• Sistemas de mecánica de congelamiento\n• Aparición de criaturas en mundo abierto'},
+   en:{title:'Frozen Monster Boss Roblox NPC',sum:'Frozen monster boss NPC for Roblox, part of the Beasts and Monsters collection.',type:'Boss NPC',
+       intro:'A terrifying frozen monster boss encased in ice with freezing abilities.',
+       detail:'Built with jagged ice-crystal protrusions across its body, this boss pairs naturally with freeze, slow, or area-denial attack mechanics in winter-themed levels.',
+       feat:'• Ice-encased frozen boss with jagged crystal body detailing'},
+   es:{title:'Jefe Monstruo Gélido NPC de Roblox',sum:'NPC de jefe Monstruo Gélido para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Jefe',
+       intro:'Un aterrador jefe Monstruo Gélido encasillado en hielo con habilidades de congelamiento.',
+       detail:'Construido con protuberancias de cristal de hielo dentadas por todo su cuerpo, este jefe combina naturalmente con mecánicas de congelamiento, ralentización o denegación de área en niveles de temática invernal.',
+       feat:'• Jefe congelado encasillado en hielo con detalles de cuerpo de cristal dentado'}},
+
+  {id:'ent',em:'♦️🌳',model:'Ent_Anciano',
+   pfor:{en:'• RPG and survival games\n• Forest and nature boss encounters\n• Guardian boss systems\n• Open world creature spawns',
+         es:'• Juegos de RPG y supervivencia\n• Encuentros de jefe en bosque y naturaleza\n• Sistemas de jefe guardián\n• Aparición de criaturas en mundo abierto'},
+   en:{title:'Ancient Ent Boss Roblox NPC',sum:'Ancient ent boss NPC for Roblox, part of the Beasts and Monsters collection.',type:'Boss NPC',
+       intro:'An ancient living tree ent boss with centuries of power rooted in its massive form.',
+       detail:'Constructed with thick bark-textured limbs and a wide rooted base, this ent boss is suited for slow, heavy-impact attacks and works well as a stationary guardian-type encounter.',
+       feat:'• Ancient living tree with thick bark-textured limb design'},
+   es:{title:'Jefe Ent Anciano NPC de Roblox',sum:'NPC de jefe Ent Anciano para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Jefe',
+       intro:'Un antiguo jefe Ent árbol viviente con siglos de poder enraizado en su masiva forma.',
+       detail:'Construido con gruesas extremidades de textura de corteza y una ancha base enraizada, este jefe Ent es adecuado para ataques lentos de gran impacto y funciona bien como encuentro de tipo guardián estacionario.',
+       feat:'• Árbol viviente antiguo con diseño de extremidades de textura de corteza gruesa'}},
+];
+
+const NPCS=[
+  {id:'caterpillar',em:'♦️🐛',model:'Oruga',
+   pfor:{en:'• RPG and survival games\n• Forest and dungeon environments\n• Swarm enemy encounters\n• Open world creature spawns',
+         es:'• Juegos de RPG y supervivencia\n• Entornos de bosque y mazmorras\n• Encuentros de enjambre enemigo\n• Aparición de criaturas en mundo abierto'},
+   en:{title:'Hostile Caterpillar Roblox NPC',sum:'Hostile caterpillar NPC for Roblox, part of the Beasts and Monsters collection.',type:'Hostile NPC',
+       intro:'A creeping hostile caterpillar NPC with venomous spines and relentless movement.',
+       detail:'Built with a segmented tube-like body, this caterpillar NPC supports smooth crawling animations and works well as a low-tier threat that appears in groups.',
+       feat:'• Venomous spine hostile with segmented tube-like body'},
+   es:{title:'NPC Oruga Hostil de Roblox',sum:'NPC de Oruga hostil para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Hostil',
+       intro:'Un reptante NPC Oruga hostil con espinas venenosas y movimiento incansable.',
+       detail:'Construida con un cuerpo segmentado tipo tubo, este NPC Oruga soporta animaciones de arrastre fluidas y funciona bien como amenaza de bajo nivel que aparece en grupos.',
+       feat:'• Hostil de espinas venenosas con cuerpo segmentado tipo tubo'}},
+
+  {id:'flower',em:'♦️🌸',model:'Flor_Monstruo',
+   pfor:{en:'• RPG and survival games\n• Forest and jungle environments\n• Trap-type enemy encounters\n• Open world creature spawns',
+         es:'• Juegos de RPG y supervivencia\n• Entornos de bosque y jungla\n• Encuentros de enemigo tipo trampa\n• Aparición de criaturas en mundo abierto'},
+   en:{title:'Monster Flower Hostile Roblox NPC',sum:'Monster flower hostile NPC for Roblox, part of the Beasts and Monsters collection.',type:'Hostile NPC',
+       intro:'A deceptive hostile monster flower NPC that lures and attacks unsuspecting players.',
+       detail:'Designed to look harmless at first glance, this flower NPC opens into a toothed maw, making it ideal for ambush-trap encounters hidden among regular foliage.',
+       feat:'• Deceptive carnivorous plant with vivid bloom and hidden maw'},
+   es:{title:'NPC Flor Monstruo Hostil de Roblox',sum:'NPC de Flor Monstruo hostil para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Hostil',
+       intro:'Un engañoso NPC Flor Monstruo hostil que atrae y ataca a jugadores desprevenidos.',
+       detail:'Diseñada para parecer inofensiva a primera vista, este NPC flor se abre en una mandíbula dentada, lo que lo hace ideal para encuentros de trampa emboscada ocultos entre el follaje normal.',
+       feat:'• Planta carnívora engañosa con flor vívida y mandíbula oculta'}},
+
+  {id:'bat',em:'♦️🦇',model:'Murciélago_de_Ébano',
+   pfor:{en:'• RPG and survival games\n• Cave and night environments\n• Swarm enemy encounters\n• Open world creature spawns',
+         es:'• Juegos de RPG y supervivencia\n• Entornos de cuevas y nocturnos\n• Encuentros de enjambre enemigo\n• Aparición de criaturas en mundo abierto'},
+   en:{title:'Ebony Bat Hostile Roblox NPC',sum:'Ebony bat hostile NPC for Roblox, part of the Beasts and Monsters collection.',type:'Hostile NPC',
+       intro:'A swift hostile ebony bat NPC with dark wings that strikes from the shadows.',
+       detail:'Lightweight and built with wide membrane wings, this bat NPC is ideal for flying swarm encounters in caves or night-time environments.',
+       feat:'• Dark ebony bat with wide membrane wing design'},
+   es:{title:'NPC Murciélago de Ébano Hostil de Roblox',sum:'NPC de Murciélago de Ébano hostil para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Hostil',
+       intro:'Un veloz NPC Murciélago de Ébano hostil con alas oscuras que ataca desde las sombras.',
+       detail:'Ligero y construido con amplias alas de membrana, este NPC Murciélago es ideal para encuentros de enjambre volador en cuevas o entornos nocturnos.',
+       feat:'• Murciélago de Ébano oscuro con diseño de alas de membrana amplias'}},
+
+  {id:'lycanthrope',em:'♦️🐺',model:'Licántropo_Lunar',
+   pfor:{en:'• RPG and survival games\n• Night and forest environments\n• Elite enemy encounters\n• Open world creature spawns',
+         es:'• Juegos de RPG y supervivencia\n• Entornos nocturnos y de bosque\n• Encuentros de enemigos de élite\n• Aparición de criaturas en mundo abierto'},
+   en:{title:'Lunar Lycanthrope Hostile Roblox NPC',sum:'Lunar lycanthrope hostile NPC for Roblox, part of the Beasts and Monsters collection.',type:'Hostile NPC',
+       intro:'A fearsome lunar lycanthrope NPC that transforms under moonlight into a deadly predator.',
+       detail:'Built with a muscular bipedal frame and clawed limbs, this lycanthrope NPC is well suited for elite enemy encounters that hit harder than standard mobs.',
+       feat:'• Lunar werewolf transformation with muscular clawed design'},
+   es:{title:'NPC Licántropo Lunar Hostil de Roblox',sum:'NPC de Licántropo Lunar hostil para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Hostil',
+       intro:'Un temible NPC Licántropo Lunar que se transforma bajo la luz de la luna en un depredador mortal.',
+       detail:'Construido con un marco bípedo musculoso y extremidades con garras, este NPC Licántropo es adecuado para encuentros de enemigos de élite que golpean más fuerte que los mobs estándar.',
+       feat:'• Transformación de hombre lobo lunar con diseño musculoso y con garras'}},
+
+  {id:'abyssal',em:'♦️🐲',model:'Dragón_Abisal',
+   pfor:{en:'• RPG and survival games\n• Ocean and abyss environments\n• Elite dragon encounters\n• Open world creature spawns',
+         es:'• Juegos de RPG y supervivencia\n• Entornos oceánicos y abisales\n• Encuentros de dragón de élite\n• Aparición de criaturas en mundo abierto'},
+   en:{title:'Abyssal Dragon Hostile Roblox NPC',sum:'Abyssal dragon hostile NPC for Roblox, part of the Beasts and Monsters collection.',type:'Hostile NPC',
+       intro:'A terrifying abyssal dragon NPC rising from the depths with dark destructive power.',
+       detail:'A smaller, darker counterpart to the Mythical Dragon, this abyssal version was built for ocean-trench encounters with a more compact, aggressive body shape.',
+       feat:'• Abyssal dark dragon with compact aggressive ocean-trench design'},
+   es:{title:'NPC Dragón Abisal Hostil de Roblox',sum:'NPC de Dragón Abisal hostil para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Hostil',
+       intro:'Un aterrador NPC Dragón Abisal surgiendo de las profundidades con oscuro poder destructivo.',
+       detail:'Una contraparte más pequeña y oscura del Dragón Mítico, esta versión abisal fue construida para encuentros en las fosas oceánicas con una forma de cuerpo más compacta y agresiva.',
+       feat:'• Dragón oscuro abisal con diseño compacto y agresivo para fosas oceánicas'}},
+
+  {id:'horse',em:'♦️🐴',model:'Caballo',
+   pfor:{en:'• RPG and survival games\n• Plains and field environments\n• Charge-type enemy encounters\n• Open world creature spawns',
+         es:'• Juegos de RPG y supervivencia\n• Entornos de llanuras y campos\n• Encuentros de enemigo tipo carga\n• Aparición de criaturas en mundo abierto'},
+   en:{title:'Hostile Horse Roblox NPC',sum:'Hostile horse NPC for Roblox, part of the Beasts and Monsters collection.',type:'Hostile NPC',
+       intro:'A wild hostile horse NPC with untamed power charging through open fields.',
+       detail:'Built with a naturalistic equine frame, this horse NPC supports galloping animations and can serve as either a hostile charging enemy or a tameable mount base.',
+       feat:'• Wild untamed horse with naturalistic galloping-ready frame'},
+   es:{title:'NPC Caballo Hostil de Roblox',sum:'NPC de Caballo hostil para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Hostil',
+       intro:'Un salvaje NPC Caballo hostil con poder indómito cargando por campos abiertos.',
+       detail:'Construido con un marco equino naturalista, este NPC Caballo soporta animaciones de galope y puede servir tanto como enemigo hostil de carga o como base de montura domesticable.',
+       feat:'• Caballo salvaje indómito con marco naturalista listo para galopar'}},
+
+  {id:'snowman',em:'♦️⛄',model:'Muñeco_de_Nieve',
+   pfor:{en:'• RPG and survival games\n• Winter and snow environments\n• Holiday-themed game worlds\n• Open world creature spawns',
+         es:'• Juegos de RPG y supervivencia\n• Entornos de invierno y nieve\n• Mundos de juego temáticos navideños\n• Aparición de criaturas en mundo abierto'},
+   en:{title:'Hostile Snowman Roblox NPC',sum:'Hostile snowman NPC for Roblox, part of the Beasts and Monsters collection.',type:'Hostile NPC',
+       intro:'A hostile animated snowman NPC with freezing attacks and an unsettling presence.',
+       detail:'Built from stacked rounded sections with a simple but eerie expression, this snowman NPC is a great fit for holiday-themed events or winter-biome enemy variety.',
+       feat:'• Animated hostile snowman with stacked rounded body sections'},
+   es:{title:'NPC Muñeco de Nieve Hostil de Roblox',sum:'NPC de Muñeco de Nieve hostil para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Hostil',
+       intro:'Un NPC Muñeco de Nieve animado hostil con ataques de congelamiento y una presencia inquietante.',
+       detail:'Construido con secciones redondeadas apiladas y una expresión simple pero siniestra, este NPC Muñeco de Nieve es una gran opción para eventos temáticos navideños o variedad de enemigos en bioma invernal.',
+       feat:'• Muñeco de Nieve animado hostil con secciones de cuerpo redondeadas apiladas'}},
+
+  {id:'venus',em:'♦️🌿',model:'Venus_Atrapamoscas',
+   pfor:{en:'• RPG and survival games\n• Jungle and swamp environments\n• Trap-type enemy encounters\n• Open world creature spawns',
+         es:'• Juegos de RPG y supervivencia\n• Entornos de jungla y pantano\n• Encuentros de enemigo tipo trampa\n• Aparición de criaturas en mundo abierto'},
+   en:{title:'Venus Flytrap Hostile Roblox NPC',sum:'Venus flytrap hostile NPC for Roblox, part of the Beasts and Monsters collection.',type:'Hostile NPC',
+       intro:'A massive hostile venus flytrap NPC that snaps at players with razor-sharp jaws.',
+       detail:'Scaled up far beyond its real-world size, this flytrap NPC features a hinged jaw section built for fast snapping animations, ideal for swamp or jungle ambush encounters.',
+       feat:'• Giant carnivorous plant with hinged razor-jaw mechanism design'},
+   es:{title:'NPC Venus Atrapamoscas Hostil de Roblox',sum:'NPC de Venus Atrapamoscas hostil para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Hostil',
+       intro:'Un masivo NPC Venus Atrapamoscas hostil que se zampa a los jugadores con mandíbulas afiladas como navajas.',
+       detail:'Escalado mucho más allá de su tamaño real, este NPC Atrapamoscas tiene una sección de mandíbula articulada construida para animaciones de mordida rápida, ideal para encuentros de emboscada en pantano o jungla.',
+       feat:'• Planta carnívora gigante con diseño de mecanismo de mandíbula afilada articulada'}},
+
+  {id:'harpia',em:'♦️🦅',model:'Harpia_harpyja',
+   pfor:{en:'• RPG and survival games\n• Sky and jungle environments\n• Aerial enemy encounters\n• Open world creature spawns',
+         es:'• Juegos de RPG y supervivencia\n• Entornos de cielo y jungla\n• Encuentros de enemigos aéreos\n• Aparición de criaturas en mundo abierto'},
+   en:{title:'Harpy Eagle Hostile Roblox NPC',sum:'Harpy eagle hostile NPC for Roblox, part of the Beasts and Monsters collection.',type:'Hostile NPC',
+       intro:'A fearsome harpy eagle NPC diving from the skies with razor-sharp talons and incredible speed.',
+       detail:'Built with broad wings and prominent talon details, this harpy eagle is designed for aerial dive-attack patterns, making it a strong addition to sky and treetop-based encounters.',
+       feat:'• Apex aerial predator with broad wings and sharp talon design'},
+   es:{title:'NPC Águila Arpía Hostil de Roblox',sum:'NPC de Águila Arpía hostil para Roblox, parte de la colección Bestias y Monstruos.',type:'NPC Hostil',
+       intro:'Un temible NPC Águila Arpía hostil que se lanza desde los cielos con garras afiladas e increíble velocidad.',
+       detail:'Construida con amplias alas y prominentes detalles de garras, esta Águila Arpía está diseñada para patrones de ataque en picada aéreos, convirtiéndola en un gran complemento para encuentros en el cielo y copas de árboles.',
+       feat:'• Depredador aéreo supremo con alas amplias y diseño de garras afiladas'}},
+];
+
+const SCRIPT_DATA={
+  en:{
+    title:'Monster Parts Connector Motor6D Roblox Script',
+    sum:'Script that automatically connects all your monster parts using Motor6D in Roblox Studio.',
+    desc:`🛠️ MONSTER PARTS CONNECTOR — Roblox Studio Script
+
+Tired of manually creating Motor6D for every part of your monster? This script does it all automatically in seconds — no more wasted hours rigging by hand.
+
+This tool was built specifically for the BEASTS & MONSTERS collection, but it works with any folder-organized monster model, regardless of size or shape.
+
+${S("WHAT'S INCLUDED")}
+• .luau script ready to use in Roblox Studio
+• Version 3 Final — stable and fully tested across multiple model types
+• Fully commented code in Spanish and English for easy customization
+• Instant setup — just change the model name and run
+
+${S('FEATURES')}
+• Auto-generates ALL Motor6D joints using folder structure
+• Auto-detects and assigns HumanoidRootPart — creates one automatically if missing
+• Removes previous joints and welds before rigging to avoid conflicts
+• Highlights base parts in glowing blue for 20 seconds for easy identification
+• Renames all parts with ordered global numbering automatically
+• Sets HumanoidRootPart with ForceField material for clear Studio visibility
+• Runs base highlighting in a separate thread so it never blocks the script
+• Compatible with models of any size, shape, and folder structure
+• Supports up to 13 limb folders: Head, Body, 4 Legs, Tail, Fangs, Claws, Wings and more
+
+${S('HOW IT WORKS')}
+1. Place your monster model in Workspace
+2. Change the model name on line 1 of the script
+3. Run the script in Roblox Studio
+4. All Motor6D joints are generated instantly across every folder
+5. Base parts glow blue so you can visually confirm the rig
+6. Copy the model back from Workspace — your rig is ready to animate
+
+${S('COMPATIBLE FOLDER NAMES')}
+Cabeza, Cuerpo, Pata_Delantera_Derecha, Pata_Delantera_Izquierda, Pata_Trasera_Derecha, Pata_Trasera_Izquierda, Cola, Colmillos_Inferiores, Colmillos_Superiores, Garra_Delantera_Derecha, Garra_Delantera_Izquierda, AlaDerecha, AlaIzquierda
+
+${S('PERFECT FOR')}
+• Monster and beast model creators
+• Developers using Motor6D animations
+• Any model with folder-based limb structure
+• RPG, survival, and open world game developers
+• Anyone building custom NPC rigs for Roblox
+
+${S('MORE FROM THIS COLLECTION')}
+${FOOTER('en')}`,
+    info:'Category: Roblox → Scripts &nbsp;|&nbsp; $50.00 USD &nbsp;|&nbsp; Open source: Yes &nbsp;|&nbsp; DRM-free: Yes &nbsp;|&nbsp; Unobfuscated: Yes &nbsp;|&nbsp; EN + ES'
+  },
+  es:{
+    title:'Script Motor6D Conector de Partes de Monstruo para Roblox',
+    sum:'Script que conecta automáticamente todas las partes de tu monstruo usando Motor6D en Roblox Studio.',
+    desc:`🛠️ CONECTOR DE PARTES DE MONSTRUO — Script para Roblox Studio
+
+¿Cansado de crear Motor6D manualmente para cada parte de tu monstruo? Este script lo hace todo automáticamente en segundos — sin más horas perdidas haciendo rig a mano.
+
+Esta herramienta fue construida específicamente para la colección BESTIAS Y MONSTRUOS, pero funciona con cualquier modelo de monstruo organizado en carpetas, independientemente del tamaño o la forma.
+
+${S('QUÉ INCLUYE')}
+• Script .luau listo para usar en Roblox Studio
+• Versión 3 Final — estable y completamente probado en múltiples tipos de modelos
+• Código completamente comentado en español e inglés para fácil personalización
+• Configuración instantánea — solo cambia el nombre del modelo y ejecútalo
+
+${S('CARACTERÍSTICAS')}
+• Genera automáticamente TODOS los joints Motor6D usando la estructura de carpetas
+• Detecta y asigna automáticamente HumanoidRootPart — crea uno automáticamente si falta
+• Elimina joints y soldaduras anteriores antes del rigging para evitar conflictos
+• Resalta partes base en azul brillante durante 20 segundos para fácil identificación
+• Renombra todas las partes con numeración global ordenada automáticamente
+• Establece HumanoidRootPart con material ForceField para visibilidad clara en Studio
+• Ejecuta el resaltado de base en un hilo separado para que nunca bloquee el script
+• Compatible con modelos de cualquier tamaño, forma y estructura de carpetas
+• Soporta hasta 13 carpetas de extremidades: Cabeza, Cuerpo, 4 Patas, Cola, Colmillos, Garras, Alas y más
+
+${S('CÓMO FUNCIONA')}
+1. Coloca tu modelo de monstruo en Workspace
+2. Cambia el nombre del modelo en la línea 1 del script
+3. Ejecuta el script en Roblox Studio
+4. Todos los joints Motor6D se generan instantáneamente en cada carpeta
+5. Las partes base brillan en azul para confirmar visualmente el rig
+6. Copia el modelo de vuelta desde Workspace — tu rig está listo para animar
+
+${S('NOMBRES DE CARPETAS COMPATIBLES')}
+Cabeza, Cuerpo, Pata_Delantera_Derecha, Pata_Delantera_Izquierda, Pata_Trasera_Derecha, Pata_Trasera_Izquierda, Cola, Colmillos_Inferiores, Colmillos_Superiores, Garra_Delantera_Derecha, Garra_Delantera_Izquierda, AlaDerecha, AlaIzquierda
+
+${S('PERFECTO PARA')}
+• Creadores de modelos de monstruos y bestias
+• Desarrolladores que usan animaciones Motor6D
+• Cualquier modelo con estructura de extremidades en carpetas
+• Desarrolladores de juegos de RPG, supervivencia y mundo abierto
+• Cualquiera que construya rigs de NPC personalizados para Roblox
+
+${S('MÁS DE ESTA COLECCIÓN')}
+${FOOTER('es')}`,
+    info:'Categoría: Roblox → Scripts &nbsp;|&nbsp; $50.00 USD &nbsp;|&nbsp; Código abierto: Sí &nbsp;|&nbsp; Sin DRM: Sí &nbsp;|&nbsp; Sin ofuscación: Sí &nbsp;|&nbsp; EN + ES'
+  }
+};
+
+// ── UI ────────────────────────────────────────────────────────────────────────
+function INFO(l,price,cat){
+  return l==='es'
+    ?`Categoría: Roblox → ${cat} &nbsp;|&nbsp; ${price} &nbsp;|&nbsp; Código abierto: Sí &nbsp;|&nbsp; Sin DRM: Sí &nbsp;|&nbsp; Sin ofuscación: Sí &nbsp;|&nbsp; EN + ES`
+    :`Category: Roblox → ${cat} &nbsp;|&nbsp; ${price} &nbsp;|&nbsp; Open source: Yes &nbsp;|&nbsp; DRM-free: Yes &nbsp;|&nbsp; Unobfuscated: Yes &nbsp;|&nbsp; EN + ES`;
+}
+
+function lbl(l){return{t:l==='es'?'Título':'Title',s:l==='es'?'Resumen':'Summary',d:l==='es'?'Descripción':'Description'};}
+
+function build(el,data,cls,l){
+  data.forEach(item=>{
+    const d=item[l];
+    const tab=document.createElement('button');
+    tab.className=`tab ${cls}`;
+    tab.dataset.panel=item.id;
+    tab.textContent=item.em+' '+d.title.split(' ').slice(0,2).join(' ');
+    tab.onclick=()=>{
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(item.id).classList.add('active');
+      activeId=item.id;
+    };
+    el.appendChild(tab);
+    const desc=makeDesc(l,item.em,d.title,d.type,d.intro,d.detail,incl(l,item.model),d.feat,STDBUILD[l],item.pfor[l]);
+    const L=lbl(l);
+    const div=document.createElement('div');
+    div.id=item.id; div.className='panel';
+    div.innerHTML=`
+      <div class="f"><div class="fl"><span>${L.t}</span><button class="cb" onclick="cp('${item.id}t')">Copy<span class="ok" id="c-${item.id}t">✓</span></button></div><pre id="${item.id}t">${d.title}</pre></div>
+      <div class="f"><div class="fl"><span>${L.s}</span><button class="cb" onclick="cp('${item.id}s')">Copy<span class="ok" id="c-${item.id}s">✓</span></button></div><pre id="${item.id}s">${d.sum}</pre></div>
+      <div class="f"><div class="fl"><span>${L.d}</span><button class="cb" onclick="cp('${item.id}d')">Copy<span class="ok" id="c-${item.id}d">✓</span></button></div><pre id="${item.id}d">${desc}</pre></div>
+      <div class="info">${INFO(l,'$15.00 USD',l==='es'?'Modelos':'Models')}</div>`;
+    document.getElementById('P').appendChild(div);
+  });
+}
+
+function buildScript(l){
+  const d=SCRIPT_DATA[l];
+  const stab=document.createElement('button');
+  stab.className='tab script'; stab.dataset.panel='scriptpanel';
+  stab.textContent=l==='es'?'🛠️ Conector Motor6D':'🛠️ Motor6D Connector';
+  stab.onclick=()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    stab.classList.add('active');
+    document.getElementById('scriptpanel').classList.add('active');
+    activeId='scriptpanel';
+  };
+  document.getElementById('TS').appendChild(stab);
+  const L=lbl(l);
+  const div=document.createElement('div');
+  div.id='scriptpanel'; div.className='panel';
+  div.innerHTML=`
+    <div class="f"><div class="fl"><span>${L.t}</span><button class="cb" onclick="cp('sct')">Copy<span class="ok" id="c-sct">✓</span></button></div><pre id="sct">${d.title}</pre></div>
+    <div class="f"><div class="fl"><span>${L.s}</span><button class="cb" onclick="cp('scs')">Copy<span class="ok" id="c-scs">✓</span></button></div><pre id="scs">${d.sum}</pre></div>
+    <div class="f"><div class="fl"><span>${L.d}</span><button class="cb" onclick="cp('scd')">Copy<span class="ok" id="c-scd">✓</span></button></div><pre id="scd">${d.desc}</pre></div>
+    <div class="info">${d.info}</div>`;
+  document.getElementById('P').appendChild(div);
+}
+
+function setLang(l){
+  curLang=l;
+  document.getElementById('lbl-pure').textContent=LABELS[l].pure;
+  document.getElementById('lbl-corrupt').textContent=LABELS[l].corrupt;
+  document.getElementById('lbl-boss').textContent=LABELS[l].boss;
+  document.getElementById('lbl-npc').textContent=LABELS[l].npc;
+  document.getElementById('btn-en').classList.toggle('active',l==='en');
+  document.getElementById('btn-es').classList.toggle('active',l==='es');
+  ['TP','TC','TJ','TN','TS'].forEach(id=>document.getElementById(id).innerHTML='');
+  document.getElementById('P').innerHTML='';
+  build(document.getElementById('TP'),PURE,'pure',l);
+  build(document.getElementById('TC'),CORRUPT,'corrupt',l);
+  build(document.getElementById('TJ'),BOSSES,'boss',l);
+  build(document.getElementById('TN'),NPCS,'npc',l);
+  buildScript(l);
+  const panel=document.getElementById(activeId);
+  const tab=document.querySelector(`[data-panel="${activeId}"]`);
+  if(panel) panel.classList.add('active');
+  if(tab) tab.classList.add('active');
+}
+
+function cp(id){
+  navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>{
+    const el=document.getElementById('c-'+id);
+    if(el){el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2000);}
+  });
+}
+
+setLang('en');
+</script>
+</body>
+</html>
